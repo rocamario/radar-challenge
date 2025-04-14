@@ -13,6 +13,12 @@ from src.dataset import Dataset
 st.set_page_config(layout="wide")
 st.title("User Session Dashboard")
 
+# Introduction and sidebar explanation
+st.write("""
+Welcome to the User Session Dashboard! Use the sidebar on the left to filter the data by country. 
+The visualizations below will update based on your selection.
+""")
+
 # Load and preprocess data
 @st.cache_data
 def load_data():
@@ -59,6 +65,10 @@ filtered_df = df_sessions[df_sessions['country'] == selected_country]
 
 # Country clicks plot
 st.subheader("Clicks by Country (Top 10)")
+st.write("""
+This plot shows the top 10 countries with the highest number of clicks. 
+It provides an overview of user activity distribution across different countries.
+""")
 top_countries = df_sessions['country'].value_counts().nlargest(10).index
 fig1, ax1 = plt.subplots()
 sns.countplot(data=df_sessions[df_sessions['country'].isin(top_countries)],
@@ -68,6 +78,10 @@ st.pyplot(fig1)
 
 # Clicks by hour in selected country
 st.subheader(f"Clicks by Hour in {selected_country} (refer to CEST time)")
+st.write("""
+This plot displays the distribution of clicks by hour for the selected country. 
+It helps identify peak activity times during the day.
+""")
 fig2, ax2 = plt.subplots()
 sns.countplot(data=filtered_df, x='hour', order=hour_order, ax=ax2)
 ax2.set_xticklabels(ax2.get_xticklabels(), rotation=45)
@@ -75,15 +89,22 @@ st.pyplot(fig2)
 
 # Clicks by device type in selected country
 st.subheader(f"Clicks by Device Type in {selected_country}")
+st.write("""
+This plot shows the distribution of clicks by device type (e.g., mobile, desktop) 
+for the selected country. It provides insights into user preferences for devices.
+""")
 fig3, ax3 = plt.subplots()
 sns.countplot(data=filtered_df, x='device_type',
               order=filtered_df['device_type'].value_counts().index, ax=ax3)
 ax3.set_xticklabels(ax3.get_xticklabels(), rotation=45)
 st.pyplot(fig3)
 
-
-# PCA sectionin selected country
+# PCA section in selected country
 st.subheader(f"User Segments in {selected_country}")
+st.write("""
+This 3D scatter plot represents user segments based on PCA (Principal Component Analysis). 
+It reduces the data dimensions to visualize patterns and clusters in user behavior.
+""")
 try:
     columns_to_encode = ['hour', 'weekday', 'device_type', 'browser', 'country', 'city']
     df_encoded = pd.get_dummies(filtered_df[columns_to_encode], drop_first=True)
@@ -93,8 +114,8 @@ try:
 
     fig_pca = px.scatter_3d(df_pca, x='PC1', y='PC2', z='PC3',
                             opacity=0.6, title="3D PCA Projection",
-                            color_discrete_sequence=['blue'],
-                            height=800)
+                            color_discrete_sequence=['blue'])
+    fig_pca.update_layout(height=600, width=800, autosize=True)
     st.plotly_chart(fig_pca, use_container_width=True)
 except Exception as e:
     st.error("Sorry, we need more data to segment customers or an error occurred.")
