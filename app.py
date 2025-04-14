@@ -25,17 +25,23 @@ def load_data():
 
     parsed_sessions = []
     for session_id in dataset.session_ids:
-        session = dataset.sessions[session_id]
-        session_data = {
-            'timestamp': pd.to_datetime(session.timestamp),
-            'hour': session.hour,
-            'weekday': session.day_of_week,
-            'device_type': session.device_type,
-            'browser': session.browser,
-            'country': session.country,
-            'city': session.city,
-        }
-        parsed_sessions.append(session_data)
+        session = dataset.sessions.get(session_id)
+        if not session:
+            continue
+
+        try:
+            session_data = {
+                'timestamp': pd.to_datetime(session.timestamp),
+                'hour': session.hour,
+                'weekday': session.day_of_week,
+                'device_type': session.device_type,
+                'browser': session.browser,
+                'country': session.country,
+                'city': session.city,
+            }
+            parsed_sessions.append(session_data)
+        except AttributeError as e:
+            st.write(f"[WARNING] Skipping session {session_id}: {e}")
 
     return pd.DataFrame(parsed_sessions)
 
@@ -53,11 +59,16 @@ hour_order = ['12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM',
               '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM']
 
 # Sidebar filters
-selected_country = st.sidebar.selectbox(
-    "Filter by Country",
-    df_sessions['country'].value_counts().index
-)
-filtered_df = df_sessions[df_sessions['country'] == selected_country]
+if not df_sessions.empty:
+    selected_country = st.sidebar.selectbox(
+        "Filter by Country",
+        df_sessions['country'].value_counts().index
+    )
+    filtered_df = df_sessions[df_sessions['country'] == selected_country]
+else:
+    st.error("No session data loaded. Please check your data source.")
+    st.stop()
+
 
 # Country clicks plot
 st.subheader("Clicks by Country (Top 10)")

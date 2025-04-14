@@ -1,4 +1,5 @@
 import json
+import os
 
 
 class UserSession:
@@ -79,11 +80,34 @@ class UserSession:
         self.timezone = None
 
     def load(self):
-        data = json.load(open(f"{self.directory}/{self.user_id}.json"))
+        path = f"{self.directory}/{self.user_id}.json"
+        if not os.path.exists(path):
+            print(f"[ERROR] File not found: {path}")
+            return
+
+        try:
+            with open(path) as f:
+                data = json.load(f)
+        except Exception as e:
+            print(f"[ERROR] Could not load JSON from {path}: {e}")
+            return
+
         self.data = data
         self.timestamp = data.get('timestamp')
-        for k, v in json.loads(data['parameters']).items():
+
+        try:
+            parameters = json.loads(data.get('parameters', '{}'))
+        except json.JSONDecodeError as e:
+            print(f"[ERROR] Invalid 'parameters' in {path}: {e}")
+            parameters = {}
+
+        for k, v in parameters.items():
             setattr(self, k, v)
+
+        # For debugging: print if something important is missing
+        if not hasattr(self, 'country'):
+            print(f"[WARNING] Missing 'country' for session {self.user_id}")
+
 
     def __str__(self):
         s = f"USER SESSION {self.user_id}\n"
