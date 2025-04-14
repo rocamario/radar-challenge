@@ -13,10 +13,10 @@ class Dataset:
             print("Downloading data from Google Drive...")
             self._download_data()
 
-        subdirs = os.listdir(directory)
-        if 'data' in subdirs:
-            directory = os.path.join(directory, 'data')
-            st.write("Data folder found. Using:", directory)
+        # subdirs = os.listdir(directory)
+        # if 'data' in subdirs:
+        #     directory = os.path.join(directory, 'data')
+        #     st.write("Data folder found. Using:", directory)
 
         self.session_ids = []
         self.sessions = {}
@@ -27,7 +27,7 @@ class Dataset:
         output = "data.zip"
         gdown.download(url, output, quiet=False)
         with zipfile.ZipFile(output, 'r') as zip_ref:
-            zip_ref.extractall(self.directory)
+            zip_ref.extractall()
         st.write("Extracted files:", os.listdir(self.directory))
 
     
