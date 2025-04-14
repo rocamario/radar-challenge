@@ -8,6 +8,7 @@ class Dataset:
     def __init__(self, directory='data'):
         self.directory = directory
 
+        # If data folder doesn't exist, download from Google Drive
         if not os.path.exists(directory):
             print("Downloading data from Google Drive...")
             self._download_data()
@@ -22,3 +23,10 @@ class Dataset:
         gdown.download(url, output, quiet=False)
         with zipfile.ZipFile(output, 'r') as zip_ref:
             zip_ref.extractall(self.directory)
+    
+    def load(self):
+         self.session_ids = [sid[:-5] for sid in os.listdir(self.directory) if sid.endswith('.json')]
+         for sid in self.session_ids:
+             s = UserSession(user_id=sid, directory=self.directory)
+             s.load()
+             self.sessions[sid] = s

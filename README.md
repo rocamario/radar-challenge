@@ -9,3 +9,13 @@ This repository contains the solution to the Radar Technical Challenge. The proj
 Example of the project output:
 
 <img src="cover.png" alt="Cover Image" width="600">
+
+## Running the App Locally
+
+To run the app locally, follow these steps:
+
+    ```bash
+    streamlit run app.py
+    ```
+
+Open your browser and navigate to `http://localhost:8501` to view the app.
